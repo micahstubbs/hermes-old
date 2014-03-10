@@ -1,0 +1,1 @@
+(ns hermes.entities.feed)
