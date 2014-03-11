@@ -8,10 +8,11 @@
             [turbovote.pedestal-toolbox.params :refer :all]
             [turbovote.pedestal-toolbox.content-negotiation :refer :all]
             [hermes.interceptors.feed :as interceptors.feed]
+            [hermes.interceptors.global :as interceptors.global]
             [hermes.renderers.html :as html]))
 
 (def global-interceptors
-  [body-params])
+  [body-params interceptors.global/get-database])
 
 (def html-routes
   `[[["/"

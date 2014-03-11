@@ -17,8 +17,8 @@
 
 (e/defsnippet render-feed "hermes/renderers/html/feed-snippets.html" [:.feedlet]
   [feed]
-  [:.feed-id] (e/content (:id feed))
-  [:.feed-file] (e/set-attr :href (str "/feeds/" (:id feed) "/download"))
+  [:.feed-id] (e/content (:feed_id feed))
+  [:.feed-file] (e/set-attr :href (str "/feeds/" (:feed_id feed) "/download"))
   [:.feed-file] (e/content (:filename feed)))
 
 (e/deftemplate list-feeds "hermes/renderers/html/list-feeds.html"
