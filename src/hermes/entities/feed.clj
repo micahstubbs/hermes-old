@@ -8,8 +8,7 @@
 
 (defn list-feeds
   [db]
-  (jdbc/query db
-              ["select * from feeds"]))
+  (jdbc/query db ["select * from feeds"]))
 
 (defn find-by-id
   [db feed_id]

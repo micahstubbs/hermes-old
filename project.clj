@@ -13,7 +13,9 @@
                  [clj-http "0.7.8"]
                  [enlive "1.1.5"]
                  [postgresql/postgresql "8.4-702.jdbc4"]
-                 [org.clojure/java.jdbc "0.3.3"]]
+                 [org.clojure/java.jdbc "0.3.3"]
+                 [ragtime "0.3.6"]]
+  :plugins [[ragtime/ragtime.lein "0.3.4"]]
   :min-lein-version "2.0.0"
   :resource-paths ["config", "resources"]
   :profiles {:build [:uberjar :env-credentials]

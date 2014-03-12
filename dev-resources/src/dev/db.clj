@@ -1,6 +1,6 @@
 (ns dev.db
-  (:require [hermes.db :as db]
-            [clojure.java.jdbc :as jdbc]))
+  (:require [clojure.java.jdbc :as jdbc]
+            [ragtime.sql.file :as ragtime]))
 
 (defn clear-feeds!
   [database]
