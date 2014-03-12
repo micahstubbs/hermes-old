@@ -8,11 +8,13 @@
             [turbovote.pedestal-toolbox.params :refer :all]
             [turbovote.pedestal-toolbox.content-negotiation :refer :all]
             [hermes.interceptors.feed :as interceptors.feed]
+            [hermes.interceptors.account :as interceptors.account]
             [hermes.interceptors.global :as interceptors.global]
             [hermes.renderers.html :as html]))
 
 (def global-interceptors
-  [body-params interceptors.global/get-database])
+  [body-params interceptors.global/keywordize-body-params
+   interceptors.global/get-database])
 
 (def html-routes
   `[[["/"
@@ -31,6 +33,16 @@
           ^:interceptors
           [(interceptors.feed/find-by-id [:path-params :id])]
           (html/enlive-template html/show-feed)]}]]
+      ["/accounts"
+       {:get
+        [:list-accounts
+         ^:interceptors
+         [interceptors.account/find-accounts]
+         (html/enlive-template html/list-accounts)]}
+       ["/new"
+        {:get
+         [:new-account
+          (html/enlive-template html/new-account)]}]]
       ["/upload" {:get
                   [:upload-feed-form
                    (html/enlive-template html/upload-form)]}]]]])
@@ -51,6 +63,19 @@
       ^:interceptors [~@global-interceptors
                       (negotiate-content-type ["application/edn"
                                                "application/json"])]
+      ["/accounts"
+       {:post
+        [:create-account
+         interceptors.account/create
+         ^:interceptors
+         [(validate-body-params interceptors.account/create-schema)]]}
+       ["/:id"
+        {:delete
+         [:delete-account
+          ^:interceptors
+          [(validate-params :path-params interceptors.account/delete-schema)
+           (interceptors.account/find-by-id [:path-params :id])]
+          interceptors.account/delete]}]]
       ["/feeds/upload" {:post
                         [:upload-feed
                          ^:interceptors

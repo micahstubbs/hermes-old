@@ -1,6 +1,9 @@
 CREATE TABLE accounts (
   id serial primary key,
   account_id uuid not null,
+  api_token uuid not null,
   name varchar(100) not null,
   active boolean default true,
+  location varchar(100) not null,
+  contact_email varchar(100) not null,
   created_at timestamp default now());

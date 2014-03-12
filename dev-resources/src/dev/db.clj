@@ -1,11 +1,14 @@
 (ns dev.db
-  (:require [clojure.java.jdbc :as jdbc]
-            [ragtime.sql.file :as ragtime]))
+  (:require [hermes.db :as db]
+            [ragtime.sql.files :refer [migrations]]
+            [ragtime.core :refer [migrate-all rollback]]
+            [ragtime.sql.database :refer [->SqlDatabase]]))
 
-(defn clear-feeds!
-  [database]
-  (jdbc/execute! database ["DELETE FROM feeds"]))
+(def ragtime-db (merge (->SqlDatabase) (db/database)))
 
 (defn reset-db! []
-  (let [database (db/database)]
-    (clear-feeds! database)))
+  (doseq [m (reverse (migrations))]
+    (rollback ragtime-db m)))
+
+(defn run-migrations! []
+  (migrate-all ragtime-db (migrations)))
