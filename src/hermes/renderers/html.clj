@@ -15,7 +15,7 @@
                  :headers {}
                  :body (s/join "" html)}))))))
 
-(e/defsnippet render-feed "hermes/renderers/html/feed-snippets.html" [:.feedlet]
+(e/defsnippet render-feed "hermes/renderers/html/list-feeds.html" [:.feed]
   [feed]
   [:.feed-id] (e/content (str (:feed_id feed)))
   [:.feed-file] (e/set-attr :href (str "/feeds/" (:feed_id feed) "/download"))
@@ -33,7 +33,7 @@
 
 (e/deftemplate new-account "hermes/renderers/html/new-account.html" [ctx])
 
-(e/defsnippet render-account "hermes/renderers/html/account-snippets.html" [:.accountlet]
+(e/defsnippet render-account "hermes/renderers/html/list-accounts.html" [:.account]
   [account]
   [:#name] (e/content (:name account))
   [:#account_id] (e/content (str (:account_id account)))
