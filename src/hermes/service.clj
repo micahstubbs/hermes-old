@@ -66,9 +66,9 @@
       ["/accounts"
        {:post
         [:create-account
-         interceptors.account/create
          ^:interceptors
-         [(validate-body-params interceptors.account/create-schema)]]}
+         [(validate-body-params interceptors.account/create-schema)]
+         interceptors.account/create]}
        ["/:id"
         {:delete
          [:delete-account
