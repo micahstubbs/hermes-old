@@ -6,9 +6,3 @@
 (i/defbefore get-database
   [ctx]
   (assoc-in ctx [:request :database] (db/database)))
-
-(i/defbefore keywordize-body-params
-  [ctx]
-  (update-in ctx [:request :body-params]
-             (fn [body-params] (into {} (for [[k v] body-params]
-                                         [(keyword k) v])))))
