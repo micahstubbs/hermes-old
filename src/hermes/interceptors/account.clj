@@ -13,9 +13,7 @@
               (if-let [account (-> ctx
                                    (get-in [:request :database])
                                    (account/find-by-id id))]
-                (-> ctx
-                    (assoc-in [:request :id] id)
-                    (assoc-in [:request :account] account))
+                (assoc-in ctx [:request :account] account)
                 (assoc ctx :response (ring-resp/not-found "Account not found")))))))
 
 (defn find-by-token
@@ -26,9 +24,7 @@
               (if-let [account (-> ctx
                                    (get-in [:request :database])
                                    (account/find-by-token token))]
-                (-> ctx
-                    (assoc-in [:request :token] token)
-                    (assoc-in [:request :account] account))
+                (assoc-in ctx [:request :account] account)
                 (assoc ctx :response (ring-resp/not-found "Account not found")))))))
 
 (def varchar100 (s/both String (s/pred #(< (count %) 100) 'varchar100?)))
@@ -41,11 +37,10 @@
 (i/defhandler create
   [request]
   (let [params (:body-params request)
-        database (:database request)]
-    (if-let [account (apply account/create-account database
-                                             (map params [:name :location :contact-email]))]
-      (ring-resp/redirect-after-post (str "/accounts"))
-      (ring-resp/not-found "Could not create account"))))
+        database (:database request)
+        account (apply account/create-account database
+                       (map params [:name :location :contact-email]))]
+    (ring-resp/redirect-after-post (str "/accounts"))))
 
 (def delete-schema
   {:id java.util.UUID})
@@ -59,7 +54,7 @@
         (ring-resp/status 204))))
 
 
-(i/defbefore find-accounts
+(i/defbefore list-accounts
   [ctx]
   (assoc-in ctx [:request :accounts]
             (account/list-accounts (get-in ctx [:request :database]))))

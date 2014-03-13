@@ -1,6 +1,5 @@
 CREATE TABLE accounts (
-  id serial primary key,
-  account_id uuid not null,
+  account_id uuid primary key,
   api_token uuid not null,
   name varchar(100) not null,
   active boolean default true,

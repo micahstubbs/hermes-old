@@ -37,7 +37,7 @@
        {:get
         [:list-accounts
          ^:interceptors
-         [interceptors.account/find-accounts]
+         [interceptors.account/list-accounts]
          (html/enlive-template html/list-accounts)]}
        ["/new"
         {:get
