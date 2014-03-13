@@ -1,6 +1,7 @@
 (ns hermes.interceptors.global
   (:require [io.pedestal.service.interceptor :as i]
-            [hermes.db :as db]))
+            [hermes.db :as db]
+            [clojure.walk :as walk]))
 
 (i/defbefore get-database
   [ctx]

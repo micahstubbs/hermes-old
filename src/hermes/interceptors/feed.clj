@@ -1,5 +1,5 @@
 (ns hermes.interceptors.feed
-  ( :require [io.pedestal.service.interceptor :as i]
+  (:require [io.pedestal.service.interceptor :as i]
              [hermes.entities.feed :as f]
              [ring.util.response :as ring-resp]
              [hermes.db :as db]
