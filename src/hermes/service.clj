@@ -13,7 +13,7 @@
             [hermes.renderers.html :as html]))
 
 (def global-interceptors
-  [body-params interceptors.global/keywordize-body-params
+  [body-params (keywordize-params :body-params)
    interceptors.global/get-database])
 
 (def html-routes

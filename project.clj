@@ -8,7 +8,7 @@
                  [io.pedestal/pedestal.service-tools "0.2.2"]
                  [io.pedestal/pedestal.jetty "0.2.2"]
                  [turbovote.resource-config "0.1.0"]
-                 [turbovote.pedestal-toolbox "0.3.1"]
+                 [turbovote.pedestal-toolbox "0.3.2"]
                  [prismatic/schema "0.2.0"]
                  [clj-http "0.7.8"]
                  [enlive "1.1.5"]
