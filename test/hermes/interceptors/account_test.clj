@@ -2,12 +2,8 @@
   (:require [hermes.interceptors.account :refer :all]
             [hermes.entities.account :as a]
             [hermes.db :as db]
+            [hermes.test-helpers :refer :all]
             [clojure.test :refer :all]))
-
-(defn with-fresh-db [f]
-  (db/reset-db!)
-  (db/run-migrations!)
-  (f))
 
 (use-fixtures :each with-fresh-db)
 

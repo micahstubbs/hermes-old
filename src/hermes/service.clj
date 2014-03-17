@@ -35,7 +35,7 @@
          {:get
           [:list-feeds
            ^:interceptors
-           [interceptors.feed/find-feeds]
+           [interceptors.feed/list-feeds]
            (html/enlive-template html/list-feeds)]}
          ["/new"
           {:get
