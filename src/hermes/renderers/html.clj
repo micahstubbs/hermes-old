@@ -25,7 +25,8 @@
   [ctx]
   [:body] (e/content (map #(render-feed %) (get-in ctx [:request :feeds]))))
 
-(e/deftemplate upload-form "hermes/renderers/html/feed-upload.html" [ctx])
+(e/deftemplate upload-form "hermes/renderers/html/feed-upload.html" [ctx]
+  [:form] (e/set-attr :action (str "/accounts/" (get-in ctx [:request :account :account_id]) "/feeds")))
 
 (e/deftemplate show-feed "hermes/renderers/html/show-feed.html"
   [ctx]

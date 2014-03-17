@@ -5,6 +5,9 @@
             [ring.util.response :as ring-resp]
             [schema.core :as s]))
 
+(def find-schema
+  {:account-id java.util.UUID})
+
 (defn find-by-id
   [request-key-path]
   (i/interceptor
@@ -41,9 +44,6 @@
         account (apply account/create-account database
                        (map params [:name :location :contact-email]))]
     (ring-resp/redirect-after-post (str "/accounts"))))
-
-(def delete-schema
-  {:id java.util.UUID})
 
 (i/defhandler delete
   [request]

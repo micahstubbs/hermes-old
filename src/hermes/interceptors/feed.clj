@@ -7,30 +7,33 @@
              [clojure.java.io :as io])
   (:import (java.io FileInputStream File)))
 
+(def find-schema
+  {:feed-id java.util.UUID
+   :account-id java.util.UUID})
+
 (i/defbefore find-feeds
   [ctx]
-  (assoc-in ctx [:request :feeds] (feed/list-feeds (get-in ctx [:request :database]))))
+  (assoc-in ctx [:request :feeds] (feed/list-feeds (get-in ctx [:request :database]) (get-in ctx [:request :account :account_id]))))
 
 (defn find-by-id
   [request-key-path]
   (i/interceptor
    :enter (fn [ctx]
-            (let [id (get-in ctx (concat [:request] request-key-path))]
-              (if-let [feed (-> ctx
-                                (get-in [:request :database])
-                                (feed/find-by-id id))]
-                (-> ctx
-                    (assoc-in [:request :id] id)
-                    (assoc-in [:request :feed] feed))
+            (let [account-id (get-in ctx [:request :account :account_id])
+                  id (get-in ctx (concat [:request] request-key-path))
+                  db (get-in ctx [:request :database])]
+              (if-let [feed (feed/find-by-id db account-id id)]
+                (assoc-in ctx [:request :feed] feed)
                 (ring-resp/not-found "Feed not found"))))))
 
 (i/defhandler create
   [request]
   (let [params (:params request)
         database (:database request)
+        account-id (get-in request [:account :account_id])
         filename (get-in params ["datafile" :filename])
         input-file (get-in params ["datafile" :tempfile])]
-    (if-let [feed (feed/create-feed database filename)]
+    (if-let [feed (feed/create-feed database account-id filename)]
       (do
         (let [dir (str "/tmp/" (:feed_id feed))
               file (str dir "/" filename)]
@@ -43,4 +46,5 @@
   [request]
   (let [feed (:feed request)
         filepath (str "/tmp/" (:feed_id feed) "/" (:filename feed))]
-    (ring-resp/response (FileInputStream. filepath))))
+    (-> (ring-resp/file-response filepath)
+        (ring-resp/header "Content-Disposition" (str "attachment; filename=" (:filename feed))))))
