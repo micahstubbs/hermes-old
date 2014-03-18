@@ -19,10 +19,12 @@
                 (assoc-in ctx [:request :account] account)
                 (assoc ctx :response (ring-resp/not-found "Account not found")))))))
 
+(def validation-token-header-name "Hermes-API-Token")
+
 (i/defbefore validate-token
   [ctx]
   (if-let [token (try (some-> (partial get-in ctx)
-                              (some [[:request :headers "X-API-TOKEN"]
+                              (some [[:request :headers validation-token-header-name]
                                      [:request :body-params :api_token]])
                               (java.util.UUID/fromString))
                       (catch IllegalArgumentException ex nil))]

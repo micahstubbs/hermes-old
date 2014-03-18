@@ -28,7 +28,7 @@
         token (java.util.UUID/randomUUID)
         account {:api_token token}]
     (testing "passthrough when the correct token is provided"
-      (let [in-ctx {:request {:headers {"X-API-TOKEN" (str token)}
+      (let [in-ctx {:request {:headers {validation-token-header-name (str token)}
                               :account account}}
             out-ctx (enter in-ctx)]
         (is (= out-ctx in-ctx)))
