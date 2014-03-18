@@ -23,21 +23,32 @@
                                       :id account-id}})]
         (is (= account-id (get-in out-ctx [:request :account :account_id])))))))
 
-(deftest find-by-token-test
-  (let [enter (:enter (find-by-token [:token]))
-        account-token ((a/create-account (db/database)
-                                       "Foo"
-                                       "Somewhere"
-                                       "foo@bar.com")
-                    :account_token)]
-    (testing "the account does not exist"
-      (let [out-ctx (enter {:request {:database (db/database)
-                                      :token (java.util.UUID/randomUUID)}})]
-        (is (= 404 (-> out-ctx :response :status)))))
-    (testing "the account does exist"
-      (let [out-ctx (enter {:request {:database (db/database)
-                                      :token account-token}})]
-        (is (= account-token (get-in out-ctx [:request :account :account_token])))))))
+(deftest validate-token-test
+  (let [enter (:enter validate-token)
+        token (java.util.UUID/randomUUID)
+        account {:api_token token}]
+    (testing "passthrough when the correct token is provided"
+      (let [in-ctx {:request {:headers {"X-API-TOKEN" (str token)}
+                              :account account}}
+            out-ctx (enter in-ctx)]
+        (is (= out-ctx in-ctx)))
+      (let [in-ctx {:request {:body-params {:api_token (str token)}
+                              :account account}}
+            out-ctx (enter in-ctx)]
+        (is (= out-ctx in-ctx))))
+    (testing "not authorized when token is not provided"
+      (let [out-ctx (enter {:request {:account account}})]
+        (is (= 401 (get-in out-ctx [:response :status])))))
+    (testing "not authorized when the token is incorrect"
+      (let [bad-token (str (java.util.UUID/randomUUID))
+            out-ctx (enter {:request {:body-params
+                                      {:api_token bad-token}
+                                      :account account}})]
+        (is (= 401 (get-in out-ctx [:response :status])))))
+    (testing "not authorized when the token is not a UUID"
+      (let [out-ctx (enter {:request {:body-params {:api_token "bad"}
+                                      :account account}})]
+        (is (= 401 (get-in out-ctx [:response :status])))))))
 
 (deftest list-accounts-test
   (let [enter (:enter list-accounts)]

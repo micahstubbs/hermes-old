@@ -19,16 +19,20 @@
                 (assoc-in ctx [:request :account] account)
                 (assoc ctx :response (ring-resp/not-found "Account not found")))))))
 
-(defn find-by-token
-  [request-key-path]
-  (i/interceptor
-   :enter (fn [ctx]
-            (let [token (get-in ctx (concat [:request] request-key-path))]
-              (if-let [account (-> ctx
-                                   (get-in [:request :database])
-                                   (account/find-by-token token))]
-                (assoc-in ctx [:request :account] account)
-                (assoc ctx :response (ring-resp/not-found "Account not found")))))))
+(i/defbefore validate-token
+  [ctx]
+  (if-let [token (try (some-> (partial get-in ctx)
+                              (some [[:request :headers "X-API-TOKEN"]
+                                     [:request :body-params :api_token]])
+                              (java.util.UUID/fromString))
+                      (catch IllegalArgumentException ex nil))]
+    (let [api-token (get-in ctx [:request :account :api_token])]
+      (if (= token api-token)
+        ctx
+        (assoc ctx :response (-> (ring-resp/response "Invalid api token.")
+                                 (ring-resp/status 401)))))
+    (assoc ctx :response (-> (ring-resp/response "No api token provided.")
+                             (ring-resp/status 401)))))
 
 (def varchar100 (s/both String (s/pred #(< (count %) 100) 'varchar100?)))
 
