@@ -15,7 +15,7 @@
   [request-key-path]
   (i/interceptor
    :enter (fn [ctx]
-            (let [account-id (get-in ctx [:request :account :account_id])
+            (let [account-id (get-in ctx [:request :account :account-id])
                   id (get-in ctx (concat [:request] request-key-path))
                   db (get-in ctx [:request :database])]
               (if-let [feed (feed/find-by-id db account-id id)]
@@ -26,13 +26,13 @@
   [ctx]
   (assoc-in ctx [:request :feeds]
             (feed/list-feeds (get-in ctx [:request :database])
-                             (get-in ctx [:request :account :account_id]))))
+                             (get-in ctx [:request :account :account-id]))))
 
 (i/defhandler create
   [request]
   (let [params (:params request)
         database (:database request)
-        account-id (get-in request [:account :account_id])
+        account-id (get-in request [:account :account-id])
         filename (get-in params ["datafile" :filename])
         input-file (get-in params ["datafile" :tempfile])
         feed (feed/create-feed database account-id filename)

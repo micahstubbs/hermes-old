@@ -25,10 +25,10 @@
   [ctx]
   (if-let [token (try (some-> (partial get-in ctx)
                               (some [[:request :headers validation-token-header-name]
-                                     [:request :body-params :api_token]])
+                                     [:request :body-params :api-token]])
                               (java.util.UUID/fromString))
                       (catch IllegalArgumentException ex nil))]
-    (let [api-token (get-in ctx [:request :account :api_token])]
+    (let [api-token (get-in ctx [:request :account :api-token])]
       (if (= token api-token)
         ctx
         (assoc ctx :response (-> (ring-resp/response "Invalid api token.")
@@ -55,7 +55,7 @@
   [request]
   (let [account (:account request)
         database (:database request)]
-    (account/delete-account database (:account_id account))
+    (account/delete-account database (:account-id account))
     (-> (ring-resp/response "Deleted")
         (ring-resp/status 204))))
 

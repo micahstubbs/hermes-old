@@ -15,9 +15,9 @@
                                   "Somewhere"
                                   "foo@bar.com")
         feed-id ((f/create-feed (db/database)
-                                 (:account_id account)
+                                 (:account-id account)
                                  "test.txt")
-                 :feed_id)]
+                 :feed-id)]
     (testing "the feed does not exist"
       (let [out-ctx (enter {:request {:database (db/database)
                                       :account account
@@ -27,7 +27,7 @@
       (let [out-ctx (enter {:request {:database (db/database)
                                       :account account
                                       :id feed-id}})]
-        (is (= feed-id (get-in out-ctx [:request :feed :feed_id])))))))
+        (is (= feed-id (get-in out-ctx [:request :feed :feed-id])))))))
 
 (deftest list-feeds-test
   (let [enter (:enter list-feeds)
@@ -36,13 +36,13 @@
                                   "Somewhere"
                                   "foo@bar.com")
         feed-id-1 ((f/create-feed (db/database)
-                                  (:account_id account)
+                                  (:account-id account)
                                   "test1.txt")
-                   :feed_id)
+                   :feed-id)
         feed-id-2 ((f/create-feed (db/database)
-                                  (:account_id account)
+                                  (:account-id account)
                                   "test2.txt")
-                   :feed_id)]
+                   :feed-id)]
     (testing "finds all feeds"
       (let [out-ctx (enter {:request {:database (db/database)
                                       :account account}})]
@@ -61,10 +61,10 @@
                          :params {"datafile" {:filename (.getName file-1)
                                               :tempfile file-1}}}})]
     (testing "creates the feed"
-      (is (= 1 (count (f/list-feeds (db/database) (:account_id account))))))
+      (is (= 1 (count (f/list-feeds (db/database) (:account-id account))))))
     (testing "redirects to feeds listing"
       (is (= 303 (get-in out-ctx [:response :status])))
-      (is (= (str "/accounts/" (:account_id account) "/feeds")
+      (is (= (str "/accounts/" (:account-id account) "/feeds")
              (get-in out-ctx [:response :headers "Location"]))))))
 
 (deftest download-test
@@ -74,7 +74,7 @@
                                   "Somewhere"
                                   "foo@bar.com")
         feed (f/create-feed (db/database)
-                            (:account_id account)
+                            (:account-id account)
                             "testfile.txt")
         out-ctx (enter {:request
                         {:database (db/database)
