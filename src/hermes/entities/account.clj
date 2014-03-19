@@ -15,16 +15,16 @@
   (jdbc/query db ["select * from accounts where active = true"]))
 
 (defn find-by-id
-  [db account_id]
+  [db account-id]
   (first (jdbc/query db
-                     ["select * from accounts where account_id = ? and active = true" account_id])))
+                     ["select * from accounts where account_id = ? and active = true" account-id])))
 
 (defn find-by-token
-  [db api_token]
+  [db api-token]
   (first (jdbc/query db
-                     ["select * from accounts where api_token = ? and active = true" api_token])))
+                     ["select * from accounts where api_token = ? and active = true" api-token])))
 
 (defn delete-account
-  [db account_id]
+  [db account-id]
   (first (jdbc/update! db :accounts {:active false}
-                       ["account_id = ?" account_id])))
+                       ["account_id = ?" account-id])))
