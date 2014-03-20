@@ -16,3 +16,16 @@
 
 (defn run-migrations! []
   (migrate-all ragtime-db (migrations)))
+
+(defn- reformat-keyword [kw]
+  (-> kw
+      name
+      (clojure.string/replace \_ \-)
+      keyword))
+
+(defn normalize-keys
+  [entity]
+  (if (nil? entity)
+    nil
+    (into {} (for [[k v] entity]
+               [(reformat-keyword k) v]))))

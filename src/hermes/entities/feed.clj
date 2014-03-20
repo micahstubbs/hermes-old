@@ -1,15 +1,6 @@
 (ns hermes.entities.feed
-  (:require [clojure.java.jdbc :as jdbc]))
-
-(def replacement-keys
-  {:account_id :account-id :feed_id :feed-id})
-
-(defn normalize-keys
-  [feed]
-  (if (nil? feed)
-    nil
-    (into {} (for [[k v] feed]
-               [(or (k replacement-keys) k) v]))))
+  (:require [clojure.java.jdbc :as jdbc]
+            [hermes.db :as db]))
 
 (defn create-feed
   [db account-id filename]
@@ -18,15 +9,15 @@
                      :feed_id (java.util.UUID/randomUUID)
                      :filename filename})
       first
-      normalize-keys))
+      db/normalize-keys))
 
 (defn list-feeds
   [db account-id]
-  (map normalize-keys (jdbc/query db ["select * from feeds where account_id = ?" account-id])))
+  (map db/normalize-keys (jdbc/query db ["select * from feeds where account_id = ?" account-id])))
 
 (defn find-by-id
   [db account-id feed-id]
   (-> (jdbc/query db
                   ["select * from feeds where account_id = ? and feed_id = ?" account-id feed-id])
       first
-      normalize-keys))
+      db/normalize-keys))
