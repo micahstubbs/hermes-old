@@ -10,6 +10,7 @@
             [hermes.interceptors.feed :as interceptors.feed]
             [hermes.interceptors.account :as interceptors.account]
             [hermes.interceptors.global :as interceptors.global]
+            [hermes.interceptors.user :as interceptors.user]
             [hermes.renderers.html :as html]))
 
 (def global-interceptors
@@ -31,6 +32,21 @@
         ^:interceptors
         [(validate-params :path-params interceptors.account/find-schema)
          (interceptors.account/find-by-id [:path-params :account-id])]
+        ["/users"
+         {:get
+          [:list-users
+           ^:interceptors
+           [interceptors.user/list-users]
+           (html/enlive-template html/list-users)]}]]
+       ["/new"
+        {:get
+         [:new-account
+          (html/enlive-template html/new-account)]}]]
+      ["/users"
+       ["/:user-id"
+        ^:interceptors
+        [(validate-params :path-params interceptors.user/find-by-id-schema)
+         (interceptors.user/find-by-id [:path-params :user-id])]
         ["/feeds"
          {:get
           [:list-feeds
@@ -40,22 +56,18 @@
          ["/new"
           {:get
            [:upload-feed-form
-            (html/enlive-template html/upload-form)]}]]]
-       ["/new"
-        {:get
-         [:new-account
-          (html/enlive-template html/new-account)]}]]]]])
+            (html/enlive-template html/upload-form)]}]]]]]]])
 
 (def file-routes
   `[[["/"
       ^:interceptors [~@global-interceptors
                       (negotiate-content-type ["application/octet-stream"])]
-      ["/accounts/:account-id/feeds/:feed-id/download"
+      ["/users/:user-id/feeds/:feed-id/download"
        {:get
         [:download-feed
          ^:interceptors
          [(validate-params :path-params interceptors.feed/find-schema)
-          (interceptors.account/find-by-id [:path-params :account-id])
+          (interceptors.user/find-by-id [:path-params :user-id])
           (interceptors.feed/find-by-id [:path-params :feed-id])]
          interceptors.feed/download]}]]]])
 
@@ -76,12 +88,16 @@
          (interceptors.account/find-by-id [:path-params :account-id])]
         {:delete
          [:delete-account
-          interceptors.account/delete]}
-        ["/feeds"
-         {:post
-          [:upload-feed
-           ^:interceptors [(rm/multipart-params)]
-           interceptors.feed/create]}]]]]]])
+          interceptors.account/delete]}]]
+      ["/users/:user-id"
+       ^:interceptors
+       [(validate-params :path-params interceptors.user/find-by-id-schema)
+        (interceptors.user/find-by-id [:path-params :user-id])]
+       ["/feeds"
+        {:post
+         [:upload-feed
+          ^:interceptors [(rm/multipart-params)]
+          interceptors.feed/create]}]]]]])
 
 (def routes
   (mapcat expand-routes [html-routes api-routes file-routes]))

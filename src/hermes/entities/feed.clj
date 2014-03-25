@@ -3,21 +3,21 @@
             [hermes.db :as db]))
 
 (defn create-feed
-  [db account-id filename]
+  [db user-id filename]
   (-> (jdbc/insert! db :feeds
-                    {:account_id account-id
+                    {:user_id user-id
                      :feed_id (java.util.UUID/randomUUID)
                      :filename filename})
       first
       db/normalize-keys))
 
 (defn list-feeds
-  [db account-id]
-  (map db/normalize-keys (jdbc/query db ["select * from feeds where account_id = ?" account-id])))
+  [db user-id]
+  (map db/normalize-keys (jdbc/query db ["select * from feeds where user_id = ?" user-id])))
 
 (defn find-by-id
-  [db account-id feed-id]
+  [db user-id feed-id]
   (-> (jdbc/query db
-                  ["select * from feeds where account_id = ? and feed_id = ?" account-id feed-id])
+                  ["select * from feeds where user_id = ? and feed_id = ?" user-id feed-id])
       first
       db/normalize-keys))

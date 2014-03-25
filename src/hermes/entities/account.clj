@@ -7,7 +7,6 @@
   (-> (jdbc/insert! db :accounts
                     {:account_id (java.util.UUID/randomUUID)
                      :name name
-                     :api_token (java.util.UUID/randomUUID)
                      :location location
                      :contact_email contact-email})
       first
@@ -20,6 +19,7 @@
 (defn find-by-id
   [db account-id]
   (-> (jdbc/query db
+
                   ["select * from accounts where account_id = ? and active = true" account-id])
       first
       db/normalize-keys))
