@@ -17,16 +17,23 @@
 
 (e/defsnippet render-feed "hermes/renderers/html/list-feeds.html" [:.feed]
   [feed]
-  [:.feed-id] (e/content (str (:feed_id feed)))
-  [:.feed-file] (e/set-attr :href (str "/feeds/" (:feed_id feed) "/download"))
+  [:.feed-id] (e/content (str (:feed-id feed)))
+  [:.feed-file] (e/set-attr :href (str "/feeds/" (:feed-id feed) "/download"))
   [:.feed-file] (e/content (:filename feed)))
 
 (e/deftemplate list-feeds "hermes/renderers/html/list-feeds.html"
   [ctx]
   [:body] (e/content (map #(render-feed %) (get-in ctx [:request :feeds]))))
 
+(e/defsnippet render-user "hermes/renderers/html/list-users.html" [:.user]
+  [user]
+  [:user-email (e/content (:email user))])
+
+(e/deftemplate list-users "hermes/renderers/html/list-users.html" [ctx]
+  [:body (e/content (map #(render-user %) (get-in ctx [:request :users])))])
+
 (e/deftemplate upload-form "hermes/renderers/html/feed-upload.html" [ctx]
-  [:form] (e/set-attr :action (str "/accounts/" (get-in ctx [:request :account :account_id]) "/feeds")))
+  [:form] (e/set-attr :action (str "/users/" (get-in ctx [:request :user :user-id]) "/feeds")))
 
 (e/deftemplate show-feed "hermes/renderers/html/show-feed.html"
   [ctx]
@@ -37,9 +44,9 @@
 (e/defsnippet render-account "hermes/renderers/html/list-accounts.html" [:.account]
   [account]
   [:#name] (e/content (:name account))
-  [:#account_id] (e/content (str (:account_id account)))
+  [:#account_id] (e/content (str (:account-id account)))
   [:#location] (e/content (:location account))
-  [:#contact-email] (e/content (:contact_email account)))
+  [:#contact-email] (e/content (:contact-email account)))
 
 (e/deftemplate list-accounts "hermes/renderers/html/list-accounts.html"
   [ctx]
