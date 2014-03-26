@@ -2,12 +2,8 @@
   (:require [hermes.interceptors.account :refer :all]
             [hermes.entities.account :as a]
             [hermes.db :as db]
+            [hermes.test-helpers :refer :all]
             [clojure.test :refer :all]))
-
-(defn with-fresh-db [f]
-  (db/reset-db!)
-  (db/run-migrations!)
-  (f))
 
 (use-fixtures :each with-fresh-db)
 
@@ -17,7 +13,7 @@
                                        "Foo"
                                        "Somewhere"
                                        "foo@bar.com")
-                    :account_id)]
+                    :account-id)]
     (testing "the account does not exist"
       (let [out-ctx (enter {:request {:database (db/database)
                                       :id (java.util.UUID/randomUUID)}})]
@@ -25,23 +21,7 @@
     (testing "the account does exist"
       (let [out-ctx (enter {:request {:database (db/database)
                                       :id account-id}})]
-        (is (= account-id (get-in out-ctx [:request :account :account_id])))))))
-
-(deftest find-by-token-test
-  (let [enter (:enter (find-by-token [:token]))
-        account-token ((a/create-account (db/database)
-                                       "Foo"
-                                       "Somewhere"
-                                       "foo@bar.com")
-                    :account_token)]
-    (testing "the account does not exist"
-      (let [out-ctx (enter {:request {:database (db/database)
-                                      :token (java.util.UUID/randomUUID)}})]
-        (is (= 404 (-> out-ctx :response :status)))))
-    (testing "the account does exist"
-      (let [out-ctx (enter {:request {:database (db/database)
-                                      :token account-token}})]
-        (is (= account-token (get-in out-ctx [:request :account :account_token])))))))
+        (is (= account-id (get-in out-ctx [:request :account :account-id])))))))
 
 (deftest list-accounts-test
   (let [enter (:enter list-accounts)]
@@ -74,4 +54,4 @@
                             {:database (db/database)
                              :account account}})]
         (is (= 204 (-> out-ctx :response :status)))
-        (is (nil? (a/find-by-id (db/database) (:account_id account))))))))
+        (is (empty? (a/find-by-id (db/database) (:account-id account))))))))

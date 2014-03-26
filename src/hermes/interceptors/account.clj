@@ -5,6 +5,9 @@
             [ring.util.response :as ring-resp]
             [schema.core :as s]))
 
+(def find-schema
+  {:account-id java.util.UUID})
+
 (defn find-by-id
   [request-key-path]
   (i/interceptor
@@ -16,16 +19,22 @@
                 (assoc-in ctx [:request :account] account)
                 (assoc ctx :response (ring-resp/not-found "Account not found")))))))
 
-(defn find-by-token
-  [request-key-path]
-  (i/interceptor
-   :enter (fn [ctx]
-            (let [token (get-in ctx (concat [:request] request-key-path))]
-              (if-let [account (-> ctx
-                                   (get-in [:request :database])
-                                   (account/find-by-token token))]
-                (assoc-in ctx [:request :account] account)
-                (assoc ctx :response (ring-resp/not-found "Account not found")))))))
+(def validation-token-header-name "Hermes-API-Token")
+
+(i/defbefore validate-token
+  [ctx]
+  (if-let [token (try (some-> (partial get-in ctx)
+                              (some [[:request :headers validation-token-header-name]
+                                     [:request :body-params :api-token]])
+                              (java.util.UUID/fromString))
+                      (catch IllegalArgumentException ex nil))]
+    (let [api-token (get-in ctx [:request :account :api-token])]
+      (if (= token api-token)
+        ctx
+        (assoc ctx :response (-> (ring-resp/response "Invalid api token.")
+                                 (ring-resp/status 401)))))
+    (assoc ctx :response (-> (ring-resp/response "No api token provided.")
+                             (ring-resp/status 401)))))
 
 (def varchar100 (s/both String (s/pred #(< (count %) 100) 'varchar100?)))
 
@@ -42,14 +51,11 @@
                        (map params [:name :location :contact-email]))]
     (ring-resp/redirect-after-post (str "/accounts"))))
 
-(def delete-schema
-  {:id java.util.UUID})
-
 (i/defhandler delete
   [request]
   (let [account (:account request)
         database (:database request)]
-    (account/delete-account database (:account_id account))
+    (account/delete-account database (:account-id account))
     (-> (ring-resp/response "Deleted")
         (ring-resp/status 204))))
 

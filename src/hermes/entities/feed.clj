@@ -1,16 +1,23 @@
 (ns hermes.entities.feed
-  (:require [clojure.java.jdbc :as jdbc]))
+  (:require [clojure.java.jdbc :as jdbc]
+            [hermes.db :as db]))
 
 (defn create-feed
-  [db filename]
-  (first (jdbc/insert! db :feeds
-                       {:feed_id (java.util.UUID/randomUUID) :filename filename})))
+  [db user-id filename]
+  (-> (jdbc/insert! db :feeds
+                    {:user_id user-id
+                     :feed_id (java.util.UUID/randomUUID)
+                     :filename filename})
+      first
+      db/normalize-keys))
 
 (defn list-feeds
-  [db]
-  (jdbc/query db ["select * from feeds"]))
+  [db user-id]
+  (map db/normalize-keys (jdbc/query db ["select * from feeds where user_id = ?" user-id])))
 
 (defn find-by-id
-  [db feed_id]
-  (first (jdbc/query db
-                     ["select * from feeds where feed_id = ?", feed_id])))
+  [db user-id feed-id]
+  (-> (jdbc/query db
+                  ["select * from feeds where user_id = ? and feed_id = ?" user-id feed-id])
+      first
+      db/normalize-keys))
