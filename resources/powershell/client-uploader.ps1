@@ -218,11 +218,12 @@ function FTP-Upload
         [string] $user = $null,
         [string] $pass = $null,
         [string] $file = $null,
-        [string] $server = $null
+        [string] $server = $null,
+        [string] $zipFilename = $null
     )
 
     # Create FTP Rquest Object
-    $FTPRequest = [System.Net.FtpWebRequest]::Create($server+"feed.zip")
+    $FTPRequest = [System.Net.FtpWebRequest]::Create($server+$zipFilename)
     $FTPRequest.Method = [System.Net.WebRequestMethods+Ftp]::UploadFile
     $FTPRequest.Credentials = new-object System.Net.NetworkCredential($user, $pass)
     $FTPRequest.UseBinary = $true
@@ -255,12 +256,18 @@ $username = "admin"
 $password = "admin"
 $server = "ftp://127.0.0.1/"
 
+# TBD: FIPS and election date handling
+$fips = "12345"
+$electionDate = "2016-11-08"
+
+$zipFilename = "vipFeed-$fips-$electionDate.zip"
+
 echo "Clearing old feed zips if they exist"
-delete-if-exists $scriptPath\feed.zip
+delete-if-exists $scriptPath\$zipFilename
 
 echo "Creating new feed zip"
 [IO.DirectoryInfo] $directory = Get-Item "$scriptPath\data"
-ZipFolder $directory $scriptPath\feed.zip
+ZipFolder $directory $scriptPath\$zipFilename
 
 echo "Uploading feed file"
-FTP-Upload -user $username -pass $password -file $scriptPath\feed.zip -server $server
+FTP-Upload -user $username -pass $password -file $scriptPath\$zipFilename -zipFilename $zipFilename -server $server
